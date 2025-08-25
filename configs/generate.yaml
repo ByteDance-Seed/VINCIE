@@ -1,0 +1,131 @@
+__object__:
+  path: generate
+  name: VINCIEGenerator
+
+dit:
+  model:
+    __object__:
+      path: models.dit.nadit
+      name: NaDiT
+      args: as_params
+    vid_in_channels: 33 
+    vid_out_channels: 16
+    vid_dim: 2560
+    vid_out_norm: fusedrms
+    txt_in_dim: 5120
+    txt_in_norm: fusedln
+    txt_dim: ${.vid_dim}
+    emb_dim: ${eval:'6 * ${.vid_dim}'}
+    heads: 20
+    head_dim: 128
+    expand_ratio: 4
+    norm: fusedrms
+    norm_eps: 1e-5
+    ada: single
+    qk_bias: False
+    qk_rope: True
+    qk_norm: fusedrms
+    patch_size: [ 1,2,2 ]
+    num_layers: 32 # llm-like
+    mm_layers: 10
+    mlp_type: swiglu
+    block_type: mmdit
+    msa_type: mm_full
+    rope_type: mmrope3d
+    rope_dim: 128
+  compile: False
+  gradient_checkpoint: True
+  checkpoint: ckpt/VINCIE-3B/dit.pth
+  fsdp:
+    sharding_strategy: _HYBRID_SHARD_ZERO2
+ema:
+  decay: 0.9998
+
+
+vae:
+  model:
+    __inherit__: models/vae/s8_c16_t4_inflation_sd3.yaml
+  slicing:
+    split_size:
+    memory_device: same
+  checkpoint: ckpt/VINCIE-3B/vae.pth
+  scaling_factor: 0.9152
+  compile: False
+  # grouping: True
+  grouping: False
+  dtype: bfloat16
+
+
+text:
+  models:
+  - type: llm14b
+    path: ckpt/VINCIE-3B/llm14b
+    # path: llm14b
+    max_length: 150
+    layer: last
+    mask: True
+  dropout: 0.1
+  compile: False
+  dtype: bfloat16
+  fsdp:
+    enabled: True
+    sharding_strategy: HYBRID_SHARD
+
+prompt_id_embedding:
+  model:
+    __object__:
+      path: models.embedding.prompt_emb
+      name: PromptEmbedding
+      args: as_params
+    max_num_prompts: 64 # max number of turns or prompts in a session
+    embedding_dim: 5120
+  fusion_strategy: seq_concat
+  # fusion_strategy: dim_add
+
+diffusion:
+  schedule:
+    type: lerp
+    T: 1000.0
+  sampler:
+    type: euler
+    prediction_type: v_lerp
+  timesteps:
+    training:
+      type: logitnormal
+      loc: 0.0
+      scale: 1.0
+    sampling:
+      type: uniform_trailing
+      steps: 50
+      shift: 12
+  loss:
+    type: v_lerp
+  cfg:
+    scale: 7.5
+    rescale: 0
+    partial: 1.0
+
+data:
+  video:
+    type: session_image
+
+generation:
+  seed: 42
+  fix_seed: True
+  aspect_ratio: keep_ratio 
+  resolution: 256 
+  fps: 2
+  batch_size: 1
+  sequence_parallel: 1
+  repeat: 1
+  use_img_placehoder: True
+  output:
+    # dir: output/mse_bench
+    dir: output
+    filename: "{index}_turn{turn_index}_rep{repeat_index}_seed{seed}"
+  positive_prompt:
+    # path: benchmark/mse_bench
+    image_path: assets/da_vinci.png
+    prompts: ["Remove the hat from Leonardo's head to reveal more of his hair. ", Replace Leonardo's dark garment with a colorful and intricately patterned cloak. ", "Change the background to a richly detailed Renaissance-style room. ", "Alter the color of Leonardo's beard to a more youthful darker shade. ", "Enhance the lighting to softly illuminate Leonardo's features, creating a dynamic effect."]
+
+  negative_prompt: "Worst quality, Normal quality, Low quality, Low res, Blurry, Jpeg artifacts, Grainy, text, logo, watermark, banner, extra digits, signature, subtitling, Bad anatomy, Bad proportions, Deformed, Disconnected limbs, Disfigured, Extra arms, Extra limbs, Extra hands, Fused fingers, Gross proportions, Long neck, Malformed limbs, Mutated, Mutated hands, Mutated limbs, Missing arms, Missing fingers, Poorly drawn hands, Poorly drawn face, Nsfw, Uncensored, Cleavage, Nude, Nipples, Overexposed, Plain background, Grainy, Underexposed, Deformed structures"

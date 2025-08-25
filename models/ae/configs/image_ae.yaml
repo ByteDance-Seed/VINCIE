@@ -1,0 +1,28 @@
+__object__:
+  path: models.ae.ae
+  name: CausalAutoencoder
+  args: as_params
+
+nd: 2
+in_channels: 3
+out_channels: 3
+latent_channels: 4
+norm: group
+activation: silu
+output_norm_act: True
+checkpointing: False
+spatial_downsample_factor: 8
+temporal_downsample_factor: 4
+encoder_channels: [128, 256, 256, 512]
+encoder_num_layers: [4, 4, 4, 8]
+encoder_spatial_downsample: [1, 2, 2, 2]
+encoder_temporal_downsample: [1, 1, 2, 2]
+encoder_direction: forward
+encoder_causal_pad: replicate
+decoder_channels: ${encoder_channels}
+decoder_num_layers: ${encoder_num_layers}
+decoder_spatial_upsample: ${encoder_spatial_downsample}
+decoder_temporal_upsample: ${encoder_temporal_downsample}
+decoder_direction: forward
+decoder_causal_pad: replicate
+variational: True
