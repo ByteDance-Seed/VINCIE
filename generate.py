@@ -214,19 +214,20 @@ class VINCIEGenerator(Entrypoint):
             pos_prompts = [
                 dict(
                     index = 0, 
-                    img_paths = [gen_config.positive_prompt['image_path']],
+                    img_paths = gen_config.positive_prompt['image_path'],
                     context = gen_config.positive_prompt['prompts']
                 )
             ]
-            print('pos_prompts: ', pos_prompts)
+            # print('pos_prompts: ', pos_prompts)
 
         # Create output dir.
         mkdir(gen_config.output.dir)
 
-        all_num_turns = [len(pp['context']) for pp in pos_prompts]
+        # all_num_turns = [len(pp['context']) for pp in pos_prompts]
+        all_num_turns = [len(pp['context']) - len(pp['img_paths']) + 1 for pp in pos_prompts]
         max_num_turns = max(all_num_turns)
 
-        context_end_idx = 1
+        # context_end_idx = 1
         idx2pos_prompts = {pp['index']: pp for pp in pos_prompts}
 
         # init
@@ -234,6 +235,7 @@ class VINCIEGenerator(Entrypoint):
         pos_prompts_turn_i_lst = []
         for i_pp, pp in enumerate(pos_prompts):
             new_pp = copy.deepcopy(pp)
+            context_end_idx = len(new_pp['img_paths'])
             new_pp['context'] = new_pp['context'][:context_end_idx]
             new_pp['img_paths'] = new_pp['img_paths'][:context_end_idx]
             pos_prompts_turn_i_lst.append(new_pp)
@@ -336,6 +338,8 @@ class VINCIEGenerator(Entrypoint):
                 raise ValueError('prompt.img_paths is empty. ')
         else:
             raise ValueError('prompt is not a DictConfig. ')
+
+        print('text: ', text)
 
         # Generate noise.
         index = prompt.index
