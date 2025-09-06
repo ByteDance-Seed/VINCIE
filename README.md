@@ -93,7 +93,7 @@ input_img=assets/woman_pineapple.png
 output_dir=output/woman_pineapple
 
 python main.py configs/generate.yaml \
-    generation.positive_prompt.image_path=$input_img \
+    generation.positive_prompt.image_path="[\"$input_img\"]" \
     generation.positive_prompt.prompts="[\"$turn1\", \"$turn2\", \"$turn3\", \"$turn4\", \"$turn5\"]" \
     generation.output.dir=$output_dir
 ```
