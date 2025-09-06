@@ -84,7 +84,7 @@ snapshot_download(cache_dir=cache_dir,
 
 ## Inference for Multi-turn Image Editing
 ```bash
-turn1="Lower the pineapple beside her face, and change it to a small one."
+turn1="Lower the pineapple beside her face, and change it to a smaller one."
 turn2="Add a crown to the woman's head. "
 turn3="Change the woman’s expression so that she is laughing."
 turn4="Change the background to a pastel gradient of blue and lavender."
