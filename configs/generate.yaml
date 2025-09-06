@@ -110,7 +110,7 @@ data:
     type: session_image
 
 generation:
-  seed: 42
+  seed: 1
   fix_seed: True
   aspect_ratio: keep_ratio 
   resolution: 256 
