@@ -118,7 +118,7 @@ generation:
   batch_size: 1
   sequence_parallel: 1
   repeat: 1
-  use_img_placehoder: True
+  pad_img_placehoder: True
   output:
     # dir: output/mse_bench
     dir: output

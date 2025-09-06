@@ -46,7 +46,7 @@
 
 
 ## News
-
+- **6 Sep, 2025:** Released the [VINCIE-3B checkpoint](https://huggingface.co/ByteDance-Seed/VINCIE-3B).
 - **25 Aug, 2025:** Released the official [website](https://vincie2025.github.io/) and the inference code.
 - **23 Aug, 2025:** Released the [VINCIE-10M dataset](https://huggingface.co/datasets/leigangqu/VINCIE-10M). 
 - **12 Jun, 2025:** Released the [VINCIE technical report](https://arxiv.org/abs/2506.10941) . 
@@ -82,19 +82,33 @@ snapshot_download(cache_dir=cache_dir,
 ```
 
 
-## Inference
+## Inference for Multi-turn Image Editing
 ```bash
-turn1="Change the color of the puppy to white, but keep the pink clothes and the hat unchanged."
-turn2="Add a small black kitten sitting beside the puppy in the lower right corner."
-turn3="Change the background to an indoor setting."
-turn4="Make the dog open its mouth and bark loudly."
-turn5="Change the image into a watercolor painting."
-input_img="assets/dog.png"
-output_dir="output/dog"
+turn1="Change the posture of the woman to lower the pineapple beside her face."
+turn2="Add a crown to the woman's head. "
+turn3="Change the woman’s expression so that she is laughing."
+turn4="Change the background to a pastel gradient of blue and lavender."
+turn5="Add a colorful bird hovering above the pineapple."
+input_img=assets/woman_pineapple.png
+output_dir=output/woman_pineapple
 
 python main.py configs/generate.yaml \
     generation.positive_prompt.image_path=$input_img \
     generation.positive_prompt.prompts="[\"$turn1\", \"$turn2\", \"$turn3\", \"$turn4\", \"$turn5\"]" \
+    generation.output.dir=$output_dir
+```
+
+## Inference for Multi-concept Composition
+```bash
+p1="<IMG1>: "; p2="<IMG2>: "; p3="<IMG3>: "; p4="<IMG4>: "; p5="<IMG5>: "
+p6="Based on <IMG0>, <IMG1>, <IMG2>, <IMG3>, <IMG4>, and <IMG5>, A smiling multi-generational family including the father in <IMG0>, mother in <IMG1>, son in <IMG2>, daughter in <IMG3>, dog in <IMG4>, and cat in <IMG5>,  poses for a portrait amidst the sunlit trees and ferns of a forest. Output <IMG6>: "
+img0="./assets/father.png"; img1="./assets/mother.png"; img2="./assets/son.png"; img3="./assets/daughter.png"; img4="./assets/dog1.png"; img5="./assets/cat.png"; 
+output_dir=output/family
+
+python main.py configs/generate.yaml \
+    generation.pad_img_placehoder=False \
+    generation.positive_prompt.image_path="[\"$img0\", \"$img1\", \"$img2\", \"$img3\", \"$img4\", \"$img5\"]" \
+    generation.positive_prompt.prompts="[\"$p1\", \"$p2\", \"$p3\", \"$p4\", \"$p5\", \"$p6\"]" \
     generation.output.dir=$output_dir
 ```
 

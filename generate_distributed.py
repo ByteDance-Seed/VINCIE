@@ -506,7 +506,7 @@ class VINCIEGenerator(Entrypoint):
                 prompt_prefix = os.environ.get("CAMERA_PREFIX", "")
                 text = [prompt_prefix + t_ for t_ in text]
 
-                if self.config.generation.get("use_img_placehoder", False):
+                if self.config.generation.get("pad_img_placehoder", False):
                     if 'context_imgPlaceholder' in prompt: 
                         text = prompt.context_imgPlaceholder
                     elif 'mse_bench' in self.config.generation.positive_prompt.path:
