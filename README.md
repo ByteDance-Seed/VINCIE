@@ -46,7 +46,7 @@
 
 
 ## News
-- **6 Sep, 2025:** Released the [VINCIE-3B checkpoint](https://huggingface.co/ByteDance-Seed/VINCIE-3B).
+- **6 Sep, 2025:** Released the [VINCIE-3B checkpoint](https://huggingface.co/ByteDance-Seed/VINCIE-3B) (full attention).
 - **25 Aug, 2025:** Released the official [website](https://vincie2025.github.io/) and the inference code.
 - **23 Aug, 2025:** Released the [VINCIE-10M dataset](https://huggingface.co/datasets/leigangqu/VINCIE-10M). 
 - **12 Jun, 2025:** Released the [VINCIE technical report](https://arxiv.org/abs/2506.10941) . 
