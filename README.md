@@ -46,6 +46,7 @@
 
 
 ## News
+- **15 Mar, 2026:** Released the Multi-turn Session image Editing Benchmark [MSE-Bench](https://huggingface.co/datasets/leigangqu/MSE-Bench). 
 - **6 Jan, 2026:** Released the [VINCIE-7B checkpoint](https://huggingface.co/ByteDance-Seed/VINCIE-7B) (full attention).
 - **6 Sep, 2025:** Released the [VINCIE-3B checkpoint](https://huggingface.co/ByteDance-Seed/VINCIE-3B) (full attention).
 - **25 Aug, 2025:** Released the official [website](https://vincie2025.github.io/) and the inference code.
