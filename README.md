@@ -26,8 +26,14 @@
   </a>
   <a href="https://huggingface.co/datasets/leigangqu/VINCIE-10M">
     <img 
-        src="https://img.shields.io/badge/VINCIE-Dataset-yellow?logo=huggingface&logoColor=yellow" 
+        src="https://img.shields.io/badge/VINCIE (10M)-Dataset-yellow?logo=huggingface&logoColor=yellow" 
         alt="VINCIE-10M Dataset"
+    />
+  </a>
+  <a href="https://huggingface.co/datasets/leigangqu/MSE-Bench">
+    <img 
+        src="https://img.shields.io/badge/MSE-Benchmark-yellow?logo=huggingface&logoColor=yellow" 
+        alt="MSE-Bench"
     />
   </a>
    <!-- <a href="https://huggingface.co/spaces/ByteDance-Seed/VINCIE-3B">
