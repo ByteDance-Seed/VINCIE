@@ -53,6 +53,7 @@
 
 ## News
 - **19 Mar, 2026:** Released the [Evaluation Code](https://github.com/ByteDance-Seed/VINCIE/tree/main/evaluation) on MSE-Bench. 
+- **15 Mar, 2026:** Released the  [Generated Images on MSE-Bench](https://huggingface.co/datasets/leigangqu/MSE-Bench), including VINCIE-3B, VINCIE-7B, Nano Banana, 
 - **15 Mar, 2026:** Released the Multi-turn Session image Editing Benchmark ([MSE-Bench](https://huggingface.co/datasets/leigangqu/MSE-Bench)). 
 - **6 Jan, 2026:** Released the [VINCIE-7B checkpoint](https://huggingface.co/ByteDance-Seed/VINCIE-7B) (full attention).
 - **6 Sep, 2025:** Released the [VINCIE-3B checkpoint](https://huggingface.co/ByteDance-Seed/VINCIE-3B) (full attention).
@@ -121,6 +122,32 @@ python main.py configs/generate.yaml \
     generation.output.dir=$output_dir
 ```
 
+## Evaluation
+
+To evaluate multi-turn image editing performance on the **MSE-Bench** benchmark:
+
+1. Install dependencies:
+```bash
+cd evaluation
+pip install -r evaluation/requirements.txt
+```
+
+2. Set your OpenAI-compatible API key:
+```bash
+export OPENAI_API_KEY="<YOUR_KEY>"
+```
+
+3. Run evaluation:
+```bash
+model_name="vincie_7b"
+python3 compute_score.py \
+  --model_name "$model_name" \
+  --api_model gpt-5-nano \
+  --num_workers 32 \
+  --res_path ./tmp_data/results/"$model_name".json
+```
+
+This evaluates prompt-following and consistency using a VLM. Results are saved to the specified path. See `evaluation/README.md` for details.
 
 ## Citation
 
