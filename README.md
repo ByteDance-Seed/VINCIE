@@ -53,7 +53,7 @@
 
 ## News
 - **19 Mar, 2026:** Released the [Evaluation Code](https://github.com/ByteDance-Seed/VINCIE/tree/main/evaluation) on MSE-Bench. 
-- **15 Mar, 2026:** Released the  [Generated Images on MSE-Bench](https://huggingface.co/datasets/leigangqu/MSE-Bench), including VINCIE-3B, VINCIE-7B, Nano Banana, 
+- **15 Mar, 2026:** Released the  [Generated Images on MSE-Bench](https://huggingface.co/datasets/leigangqu/MSE-Bench-results), including VINCIE-3B, VINCIE-7B, Nano Banana, Qwen-Image-Edit, FLUX.1-Kontext-dev, Bagel, Step1X-Edit, Omnigen 2, Omnigen, ICEdit, UltraEdit, HQEdit, Magicbrush, and InstructPix2Pix. 
 - **15 Mar, 2026:** Released the Multi-turn Session image Editing Benchmark ([MSE-Bench](https://huggingface.co/datasets/leigangqu/MSE-Bench)). 
 - **6 Jan, 2026:** Released the [VINCIE-7B checkpoint](https://huggingface.co/ByteDance-Seed/VINCIE-7B) (full attention).
 - **6 Sep, 2025:** Released the [VINCIE-3B checkpoint](https://huggingface.co/ByteDance-Seed/VINCIE-3B) (full attention).
