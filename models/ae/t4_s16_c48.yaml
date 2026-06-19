@@ -1,0 +1,22 @@
+__object__:
+  path: models.ae.modules.video_vae
+  name: VideoAutoencoderKL
+  args: as_params
+
+enc_block_out_channels: [128, 256, 384, 512, 768]
+dec_block_out_channels: [768, 512, 384, 256, 128]
+enc_time_receptive_field: full
+dec_time_receptive_field: full
+enc_layers_per_block: 2
+dec_layers_per_block: 3
+slicing_sample_min_size: 4
+temporal_scale_num: 2
+inflation_mode: tail
+in_channels: 3
+latent_channels: 48
+out_channels: 3
+use_quant_conv: False
+use_post_quant_conv: False
+spatial_downsample_factor: 16
+temporal_downsample_factor: 4
+freeze_encoder: False

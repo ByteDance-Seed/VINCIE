@@ -1,0 +1,130 @@
+__object__:
+  path: generate_7b
+  name: SesEdit7BGenerator
+
+dit:
+  model:
+    __object__:
+      path: models.dit.nadit_with_pie
+      name: NaDiT
+      args: as_params
+    vid_in_channels: 97
+    vid_out_channels: 48
+    vid_dim: 3584
+    vid_out_norm: fusedrms
+    txt_in_dim: [4096]
+    txt_in_norm: fusedrms
+    txt_dim: ${.vid_dim}
+    emb_dim: ${eval:'6 * ${.vid_dim}'}
+    heads: 32
+    head_dim: 128
+    expand_ratio: 4
+    norm: fusedrms
+    norm_eps: 1e-5
+    ada: fused_single
+    qk_bias: False
+    qk_rope: True
+    qk_norm: fusedrms
+    patch_size: [ 1,1,1 ]
+    num_layers: 32 # llm-like
+    mm_layers: 12
+    mlp_type: swiglu
+    block_type: mmdit
+    msa_type: fused_mm_full
+    rope_type: mmrope3d_v3
+    rope_dim: 120
+    patch_type: v2
+    txt_proj_type: mlp
+  checkpoint: ./ckpt/VINCIE-7B/ema.pth
+  compile: False
+  gradient_checkpoint: True
+  fsdp:
+    sharding_strategy: _HYBRID_SHARD_ZERO2
+ema:
+  decay: 0.9998
+
+
+vae:
+  model:
+    __inherit__: models/ae/t4_s16_c48.yaml
+  checkpoint: ./ckpt/VINCIE-7B/ema_vae.pth
+  slicing:
+    split_size:
+    memory_device: same
+  scaling_factor: 0.9045
+  shifting_factor: -0.0025
+  compile: False
+  grouping: False  # Enable for small dit model.
+  dtype: bfloat16
+
+
+text:
+  models:
+  - type: t5
+    path: ./ckpt/VINCIE-7B/flan-ul2
+    max_length: 150
+    layer: last
+    mask: True
+  dropout: 0.1
+  fsdp:
+    enabled: True
+    sharding_strategy: HYBRID_SHARD
+  output:
+    embedding_and_mask: list
+  compile: False
+  dtype: bfloat16
+
+prompt_id_embedding:
+  model:
+    __object__:
+      path: models.embedding.prompt_emb
+      name: PromptEmbedding
+      args: as_params
+    max_num_prompts: 64 # max number of turns or prompts in a session
+    embedding_dim: 4096
+  fusion_strategy: seq_concat
+
+diffusion:
+  schedule:
+    type: lerp
+    T: 1000.0
+  sampler:
+    type: euler
+    prediction_type: v_lerp
+  timesteps:
+    training:
+      type: logitnormal
+      loc: 0.0
+      scale: 1.25
+    sampling:
+      type: uniform_trailing
+      steps: 50
+      shift: 10
+  loss:
+    type: v_lerp
+  cfg:
+    scale: 10
+    rescale: 0
+
+generation:
+  seed: 0
+  frames: 97
+  aspect_ratio: keep_ratio
+  resolution: ${eval:'(640 * 480) ** 0.5'}
+  fps: 2
+  batch_size: 32
+  sequence_parallel: 1
+  repeat: 1
+  output:
+    dir: output/benchV2
+    filename: "{index}_turn{turn_index}_rep{repeat_index}_seed{seed}"
+  pad_img_placehoder: True
+  positive_prompt:
+    # Option A — directory with meta.yaml (batch mode):
+    # path: ./data/my_benchmark/
+    # Option B — single image via infer.sh or CLI override:
+    # image_path:
+    #   - ./input.jpg
+    # prompts:
+    #   - "Turn the sky orange"
+  negative_prompt: "Worst quality, Normal quality, Low quality, Low res, Blurry, Jpeg artifacts, Grainy, text, logo, watermark, banner, extra digits, signature, subtitling, Bad anatomy, Bad proportions, Deformed, Disconnected limbs, Disfigured, Extra arms, Extra limbs, Extra hands, Fused fingers, Gross proportions, Long neck, Malformed limbs, Mutated, Mutated hands, Mutated limbs, Missing arms, Missing fingers, Poorly drawn hands, Poorly drawn face, Nsfw, Uncensored, Cleavage, Nude, Nipples, Overexposed, Plain background, Grainy, Underexposed, Deformed structures"

@@ -75,51 +75,88 @@ pip install flash_attn==2.6.3 --no-build-isolation
 ```
 
 2️⃣  Download pretrained checkpoint
-```python
-from huggingface_hub import snapshot_download
+```bash
+# VINCIE-3B
+python download_ckpt.py --model 3B
 
-save_dir = "ckpt/VINCIE-3B"
-repo_id = "ByteDance-Seed/VINCIE-3B"
-cache_dir = save_dir + "/cache"
-
-snapshot_download(cache_dir=cache_dir,
-  local_dir=save_dir,
-  repo_id=repo_id,
-  local_dir_use_symlinks=False,
-  resume_download=True
-)
-
+# VINCIE-7B
+python download_ckpt.py --model 7B
 ```
+
+Checkpoints are saved to:
+- `ckpt/VINCIE-3B/` — `dit.pth`, `vae.pth`, `llm14b/`
+- `ckpt/VINCIE-7B/` — `ema.pth`, `ema_vae.pth`, `flan-ul2/`
 
 
 ## Inference for Multi-turn Image Editing
+
 ```bash
 turn1="Lower the pineapple beside her face, and change it to a smaller one."
-turn2="Add a crown to the woman's head. "
-turn3="Change the woman’s expression so that she is laughing."
+turn2="Add a crown to the woman's head."
+turn3="Change the woman's expression so that she is laughing."
 turn4="Change the background to a pastel gradient of blue and lavender."
 turn5="Add a colorful bird hovering above the crown."
-input_img=assets/woman_pineapple.png
-output_dir=output/woman_pineapple
-
-python main.py configs/generate.yaml \
-    generation.positive_prompt.image_path="[\"$input_img\"]" \
-    generation.positive_prompt.prompts="[\"$turn1\", \"$turn2\", \"$turn3\", \"$turn4\", \"$turn5\"]" \
-    generation.output.dir=$output_dir
 ```
 
+### VINCIE-3B
+
+```bash
+torchrun --nproc-per-node=1 main.py configs/generate.yaml \
+    generation.positive_prompt.image_path='["assets/woman_pineapple.png"]' \
+    generation.positive_prompt.prompts="[\"$turn1\", \"$turn2\", \"$turn3\", \"$turn4\", \"$turn5\"]" \
+    generation.output.dir=output/woman_pineapple_3b \
+    generation.batch_size=1 \
+    generation.resolution=256 \
+    diffusion.timesteps.sampling.steps=50 \
+    diffusion.cfg.scale=7.5 \
+    dit.checkpoint=./ckpt/VINCIE-3B/dit.pth
+```
+
+### VINCIE-7B
+
+```bash
+torchrun --nproc-per-node=1 main.py configs/generate_7b.yaml \
+    generation.positive_prompt.image_path='["assets/woman_pineapple.png"]' \
+    generation.positive_prompt.prompts="[\"$turn1\", \"$turn2\", \"$turn3\", \"$turn4\", \"$turn5\"]" \
+    generation.output.dir=output/woman_pineapple_7b \
+    generation.batch_size=1 \
+    generation.resolution=720 \
+    diffusion.timesteps.sampling.steps=50 \
+    diffusion.cfg.scale=10 \
+    dit.checkpoint=./ckpt/VINCIE-7B/ema.pth
+```
+
+For multi-GPU inference, set `--nproc-per-node` to the number of GPUs.
+
 ## Inference for Multi-concept Composition
+
 ```bash
 p1="<IMG1>: "; p2="<IMG2>: "; p3="<IMG3>: "; p4="<IMG4>: "; p5="<IMG5>: "
-p6="Based on <IMG0>, <IMG1>, <IMG2>, <IMG3>, <IMG4>, and <IMG5>, A smiling multi-generational family including the father in <IMG0>, mother in <IMG1>, son in <IMG2>, daughter in <IMG3>, dog in <IMG4>, and cat in <IMG5>,  poses for a portrait amidst the sunlit trees and ferns of a forest. Output <IMG6>: "
-img0="./assets/father.png"; img1="./assets/mother.png"; img2="./assets/son.png"; img3="./assets/daughter.png"; img4="./assets/dog1.png"; img5="./assets/cat.png"; 
-output_dir=output/family
+p6="Based on <IMG0>, <IMG1>, <IMG2>, <IMG3>, <IMG4>, and <IMG5>, A smiling multi-generational family including the father in <IMG0>, mother in <IMG1>, son in <IMG2>, daughter in <IMG3>, dog in <IMG4>, and cat in <IMG5>, poses for a portrait amidst the sunlit trees and ferns of a forest. Output <IMG6>: "
+img0="./assets/father.png"; img1="./assets/mother.png"; img2="./assets/son.png"
+img3="./assets/daughter.png"; img4="./assets/dog1.png"; img5="./assets/cat.png"
+```
 
-python main.py configs/generate.yaml \
+### VINCIE-3B
+
+```bash
+torchrun --nproc-per-node=1 main.py configs/generate.yaml \
     generation.pad_img_placehoder=False \
     generation.positive_prompt.image_path="[\"$img0\", \"$img1\", \"$img2\", \"$img3\", \"$img4\", \"$img5\"]" \
     generation.positive_prompt.prompts="[\"$p1\", \"$p2\", \"$p3\", \"$p4\", \"$p5\", \"$p6\"]" \
-    generation.output.dir=$output_dir
+    generation.output.dir=output/family_3b \
+    dit.checkpoint=./ckpt/VINCIE-3B/dit.pth
+```
+
+### VINCIE-7B
+
+```bash
+torchrun --nproc-per-node=1 main.py configs/generate_7b.yaml \
+    generation.pad_img_placehoder=False \
+    generation.positive_prompt.image_path="[\"$img0\", \"$img1\", \"$img2\", \"$img3\", \"$img4\", \"$img5\"]" \
+    generation.positive_prompt.prompts="[\"$p1\", \"$p2\", \"$p3\", \"$p4\", \"$p5\", \"$p6\"]" \
+    generation.output.dir=output/family_7b \
+    dit.checkpoint=./ckpt/VINCIE-7B/ema.pth
 ```
 
 ## Evaluation

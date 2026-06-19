@@ -1,5 +1,5 @@
  # Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
- # SPDX-License-Identifier: Apache-2.0 
+ # SPDX-License-Identifier: Apache-2.0
 
 """
 Configuration utility functions
@@ -9,6 +9,7 @@ import importlib
 from typing import Any, Callable, List, Union
 from omegaconf import DictConfig, ListConfig, OmegaConf
 
+from common.platform import get_region
 
 OmegaConf.register_new_resolver("eval", eval)
 
@@ -22,6 +23,7 @@ def load_config(path: str, argv: List[str] = None) -> Union[DictConfig, ListConf
         config_argv = OmegaConf.from_dotlist(argv)
         config = OmegaConf.merge(config, config_argv)
     config = resolve_recursive(config, resolve_inheritance)
+    config = resolve_recursive(config, resolve_region)
     return config
 
 
@@ -70,6 +72,21 @@ def resolve_inheritance(config: Union[DictConfig, ListConfig]) -> Any:
     return config
 
 
+def resolve_region(config: Union[DictConfig, ListConfig]) -> Any:
+    """
+    Recursively resolve region if the config contains:
+    __region__:
+        cn: ...
+        us: ...
+    """
+    if isinstance(config, DictConfig):
+        regions = config.pop("__region__", None)
+        region = get_region() or "cn"
+        if regions:
+            if region not in regions:
+                raise ValueError("__region__ does not provide config for {region}")
+            config = regions[region]
+    return config
 
 
 def import_item(path: str, name: str) -> Any:

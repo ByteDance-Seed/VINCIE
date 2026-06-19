@@ -9,6 +9,13 @@ The additional arguments support commandline override.
 import os
 from sys import argv
 
+import torch
+torch.backends.cudnn.enabled = False
+# torch.library.wrap_triton was added in PyTorch 2.6.0; flash_attn uses it at
+# call time as an identity wrapper around Triton kernels, so a no-op is safe.
+if not hasattr(torch.library, "wrap_triton"):
+    torch.library.wrap_triton = lambda f: f
+
 from common.config import create_object, load_config
 from common.distributed.basic import get_local_rank
 from common.entrypoint import Entrypoint

@@ -1,4 +1,4 @@
-# Copyright (c) 2025 Bytedance Ltd. and/or its affiliates  
+# Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
 # SPDX-License-Identifier: Apache-2.0
 import os
 from dataclasses import dataclass
@@ -9,15 +9,24 @@ from torch import nn
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
+    CLIPTextModel,
+    CLIPTokenizerFast,
+    T5EncoderModel,
+    T5TokenizerFast,
 )
 from transformers.tokenization_utils_base import BatchEncoding
 
+from common.fs import download_and_extract
 from common.logger import get_logger
 
 logger = get_logger(__name__)
 
 MODEL_TYPES = {
+    "clip": (CLIPTokenizerFast, CLIPTextModel),
+    "t5": (T5TokenizerFast, T5EncoderModel),
     "llm14b": (AutoTokenizer, AutoModelForCausalLM),
+    "llm7b": (AutoTokenizer, AutoModelForCausalLM),
+    "byt5": (AutoTokenizer, T5EncoderModel),
 }
 
 
@@ -40,7 +49,7 @@ class TextEncoder(nn.Module):
 
         for model in config.models:
             tokenizer_cls, model_cls = MODEL_TYPES[model.type]
-            path = model.path
+            path = download_and_extract(model.path)
             max_length = model.max_length
 
             if model.type in ["llm14b", "llm7b"]:

@@ -1,6 +1,5 @@
-# Copyright (c) 2025 Bytedance Ltd. and/or its affiliates  
+# Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
 # SPDX-License-Identifier: Apache-2.0
-import importlib
 from functools import partial
 from typing import Callable, List, Optional
 import torch
@@ -16,16 +15,21 @@ from common.distributed.ops import slice_inputs
 
 # (dim: int, emb_dim: int)
 ada_layer_type = Callable[[int, int], nn.Module]
-turbox = None
+
+try:
+    import turbox as _turbox
+    _HAS_TURBOX = True
+except ImportError:
+    _turbox = None
+    _HAS_TURBOX = False
 
 
 def get_ada_layer(ada_layer: str, norm_type: Optional[str]) -> ada_layer_type:
     if ada_layer == "single":
         return AdaSingle
     if ada_layer == "fused_single" and norm_type == "fusedrms":
-        global turbox
-        if turbox is None:
-            turbox = importlib.import_module("turbox")
+        if not _HAS_TURBOX:
+            return AdaSingle
         return FusedAdaSingleRMSNorm
     raise NotImplementedError(f"{ada_layer} is not supported")
 
@@ -226,7 +230,7 @@ class FusedAdaSingleRMSNorm(AdaSingle):
                 getattr(self, f"{layer}_scale", None),
             )
             if hid_shape is not None:
-                return turbox.fuse_rms_ada_func(
+                return _turbox.fuse_rms_ada_func(
                     input=hid,
                     gamma=norm_layer.weight,
                     scaleA=scaleA,
@@ -241,7 +245,7 @@ class FusedAdaSingleRMSNorm(AdaSingle):
         if mode == "out":
             gateB = getattr(self, f"{layer}_gate", None)
             if hid_shape is not None:
-                return turbox.fuse_ada_res_func(
+                return _turbox.fuse_ada_res_func(
                     input=hid,
                     gateA=gateA,
                     gateB=gateB,

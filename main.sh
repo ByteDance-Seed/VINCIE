@@ -1,5 +1,5 @@
 #!/bin/bash
 
 echo "Launch run script"
-TORCHRUN main.py $@
+torchrun --nproc-per-node=${NGPU:-1} main.py "$@"
 

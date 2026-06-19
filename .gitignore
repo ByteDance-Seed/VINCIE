@@ -17,3 +17,6 @@ tmp_data
 output
 /ckpt
 /benchmark/mse_bench
+
+infer_3b.sh
+infer_7b.sh
