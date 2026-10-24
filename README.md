@@ -71,7 +71,6 @@ cd VINCIE
 conda create -n vincie python=3.10 -y
 conda activate vincie
 pip install -r requirements.txt
-pip install flash_attn==2.6.3 --no-build-isolation
 ```
 
 2️⃣  Download pretrained checkpoint

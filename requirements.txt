@@ -7,6 +7,7 @@ sentencepiece==0.1.99
 torch==2.5.1
 torchvision==0.20.1
 transformers==4.44.0
+diffusers==0.30.3
 
 datasets==2.18.0
 tqdm==4.66.1
@@ -15,3 +16,12 @@ PyYAML==6.0
 Pillow==10.0.0
 openai==1.9.0
 huggingface-hub>=0.23.2,<1.0
+accelerate==1.15.0
+
+omegaconf
+mediapy
+tabulate
+beartype
+tiktoken
+transformers_stream_generator
+flash_attn @ https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.0.post2/flash_attn-2.7.0.post2+cu12torch2.5cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
